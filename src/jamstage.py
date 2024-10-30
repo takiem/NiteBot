@@ -8,7 +8,7 @@ import platform
 macro_running = False
 listener = None
 
-def start_listener():
+def start_listener(stop_event):
     global listener
 
     def on_activate():
@@ -19,7 +19,7 @@ def start_listener():
         else:
             print("Starting macro...")
             macro_running = True
-            threading.Thread(target=run_macro).start()
+            threading.Thread(target=run_macro, args=(stop_event,)).start()
 
     hotkey = keyboard.HotKey(
         keyboard.HotKey.parse('<ctrl>+<alt>+q'),
@@ -35,22 +35,28 @@ def start_listener():
     )
     listener.start()
 
-def run_macro():
-    gamepad = vg.VX360Gamepad()
+    while not stop_event.is_set():
+        time.sleep(0.1)
 
+    if listener is not None:
+        listener.stop()
+        listener.join()
+
+def run_macro(stop_event):
+    gamepad = vg.VX360Gamepad()
     is_windows = platform.system() == "Windows"
 
-    while macro_running:
-
+    while macro_running and not stop_event.is_set():
         wait_time = random.uniform(30, 51)
         print(f"Waiting for {wait_time:.2f} seconds.")
         start_wait = time.time()
+
         while time.time() - start_wait < wait_time:
-            if not macro_running:
+            if not macro_running or stop_event.is_set():
                 break
             time.sleep(0.1)
 
-        if not macro_running:
+        if not macro_running or stop_event.is_set():
             break
 
         gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_DPAD_DOWN)
@@ -60,7 +66,7 @@ def run_macro():
         y_presses = random.randint(2, 4)
 
         for i in range(y_presses):
-            if not macro_running:
+            if not macro_running or stop_event.is_set():
                 break
 
             x = random.uniform(-1.0, 1.0)
@@ -70,10 +76,10 @@ def run_macro():
 
             gamepad.press_button(button=button_to_press)
             gamepad.update()
-            time.sleep(random.uniform(0.1, 0.2))  
+            time.sleep(random.uniform(0.1, 0.2))
             gamepad.release_button(button=button_to_press)
             gamepad.update()
-            time.sleep(random.uniform(0.5, 1.0))  
+            time.sleep(random.uniform(0.5, 1.0))
 
             x = random.uniform(-1.0, 1.0)
             y = random.uniform(-1.0, 1.0)
@@ -86,16 +92,17 @@ def run_macro():
 
     gamepad.reset()
     gamepad.update()
-
     print("Macro stopped!")
 
 if __name__ == "__main__":
     print("Press CTRL+ALT+Q to start/stop the macro.")
-    start_listener()
+    stop_event = threading.Event()
+    start_listener(stop_event)
 
     try:
         while True:
             time.sleep(0.1)
     except KeyboardInterrupt:
+        stop_event.set()
         if listener is not None:
             listener.stop()

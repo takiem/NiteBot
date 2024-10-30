@@ -2,12 +2,15 @@ import os
 import colorama
 from colorama import Fore
 import threading
-import rl  
-import jamstage  
-import ego  
+import rl
+import jamstage
+import ego
 import reload
 
 colorama.init(autoreset=True)
+
+listener_thread = None
+stop_event = threading.Event()
 
 def print_color():
     print(Fore.RED + 'N', end='')
@@ -17,8 +20,21 @@ def print_color():
     print(Fore.BLUE + 'B', end='')
     print(Fore.MAGENTA + 'o', end='')
     print(Fore.RED + 'T', end='')
-    print(Fore.CYAN + ' v1.0.0', end='')
+    print(Fore.CYAN + ' v1.0.1', end='')
     print('\n')
+
+def stop_listener():
+    global listener_thread, stop_event
+    stop_event.set()  
+    if listener_thread and listener_thread.is_alive():
+        listener_thread.join()  
+    stop_event.clear()  
+
+def start_listener(target_function):
+    global listener_thread, stop_event
+    stop_listener()  
+    listener_thread = threading.Thread(target=target_function, args=(stop_event,))
+    listener_thread.start()
 
 def main_menu():
     while True:
@@ -35,38 +51,35 @@ def main_menu():
 
         if choice == '1':
             print("Press CTRL+ALT+Q to start or stop the macro.\nPress Enter to go back to main menu.")
-            listener_thread = threading.Thread(target=rl.start_listener)
-            listener_thread.start()
+            start_listener(rl.start_listener)
             input_key = input()
             if input_key == '':
-                rl.macro_running = False  
+                stop_listener()
                 continue
         elif choice == '2':
             print("Press CTRL+ALT+Q to start or stop the macro.\nPress Enter to go back to main menu.")
-            listener_thread = threading.Thread(target=jamstage.start_listener)
-            listener_thread.start()
+            start_listener(jamstage.start_listener)
             input_key = input()
             if input_key == '':
-                jamstage.macro_running = False  
+                stop_listener()
                 continue
         elif choice == '3':
             print("Press CTRL+ALT+Q to start or stop the macro.\nPress Enter to go back to main menu.")
-            listener_thread = threading.Thread(target=ego.start_listener)
-            listener_thread.start()
+            start_listener(ego.start_listener)
             input_key = input()
             if input_key == '':
-                ego.macro_running = False  
+                stop_listener()
                 continue
         elif choice == '4':
             print("Press CTRL+ALT+Q to start or stop the macro.\nPress Enter to go back to main menu.")
-            listener_thread = threading.Thread(target=reload.start_listener)
-            listener_thread.start()
+            start_listener(reload.start_listener)
             input_key = input()
             if input_key == '':
-                reload.macro_running = False  
+                stop_listener()
                 continue
         elif choice == '5':
             print("Goodbye!")
+            stop_listener()
             break
         else:
             print("Invalid number.")
