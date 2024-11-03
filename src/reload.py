@@ -48,7 +48,16 @@ def holding_lstick(gamepad):
     gamepad.left_joystick_float(x_value_float=0.0, y_value_float=y_axis_value)
     gamepad.update()
 
-def press_a(gamepad):
+def pressing_jump(gamepad):
+
+    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+    gamepad.update()
+    time.sleep(0.1)
+    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+    gamepad.update()
+
+    time.sleep(1.0)
+
     gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
     gamepad.update()
     time.sleep(0.1)
@@ -60,16 +69,16 @@ def run_macro(stop_event):
     print("Macro started!")
 
     try:
-        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
         gamepad.update()
         time.sleep(0.5)
-        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
         gamepad.update()
         time.sleep(0.5)
 
         while macro_running and not stop_event.is_set():
             holding_lstick(gamepad)
-            press_a(gamepad)
+            pressing_jump(gamepad)
             time.sleep(0.1)
     except KeyboardInterrupt:
         pass

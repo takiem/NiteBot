@@ -20,7 +20,7 @@ def print_color():
     print(Fore.BLUE + 'B', end='')
     print(Fore.MAGENTA + 'o', end='')
     print(Fore.RED + 'T', end='')
-    print(Fore.CYAN + ' v1.0.1', end='')
+    print(Fore.CYAN + ' v1.0.2', end='')
     print('\n')
 
 def stop_listener():
@@ -44,7 +44,7 @@ def main_menu():
         print("1) RL 🚀")
         print("2) Fortmeme Jam Stage 🎶")
         print("3) Fortmeme Ego 🧱")
-        print("4) Fortmeme Reload 🔁")
+        print("4) Fortmeme Reload / Battle Royale 🔫")
         print("5) Exit")
 
         choice = input("\nEnter your number: ")
