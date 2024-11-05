@@ -9,6 +9,7 @@ listener = None
 
 is_windows = platform.system() == "Windows"
 y_axis_value = 1.0 if is_windows else -1.0  
+platform_button = vg.XUSB_BUTTON.XUSB_GAMEPAD_Y if is_windows else vg.XUSB_BUTTON.XUSB_GAMEPAD_X  
 
 def start_listener(stop_event):
     global listener
@@ -49,11 +50,10 @@ def holding_lstick(gamepad):
     gamepad.update()
 
 def pressing_jump(gamepad):
-
-    gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+    gamepad.press_button(button=platform_button)  
     gamepad.update()
     time.sleep(0.1)
-    gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+    gamepad.release_button(button=platform_button)
     gamepad.update()
 
     time.sleep(1.0)
@@ -69,10 +69,10 @@ def run_macro(stop_event):
     print("Macro started!")
 
     try:
-        gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+        gamepad.press_button(button=platform_button)  
         gamepad.update()
         time.sleep(0.5)
-        gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+        gamepad.release_button(button=platform_button)
         gamepad.update()
         time.sleep(0.5)
 
